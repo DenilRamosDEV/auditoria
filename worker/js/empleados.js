@@ -66,7 +66,7 @@ function fetchData() {
     loadingOverlay.classList.remove('hidden');
 
     // Realizar la solicitud GET a la API, incluyendo el token en el encabezado
-    fetch(`http://192.168.1.8/auditoria/works/?page=1&limit=10`, {
+    fetch(`http://192.168.18.67/auditoria/works/?page=1&limit=10`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Agregar el token en el encabezado

@@ -1,0 +1,116 @@
+<!-- Panel de Bienvenida -->
+<h1>Bienvenido</h1>
+<p>Gestiona y controla todos los Trabajadores.</p>
+
+<!-- Panel de Información del Usuario -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title name_user">Hola, usuarios</h5>
+        <p>
+            <strong>Rol:</strong>
+            <sap class="rol_user"></sap>
+        </p>
+        <p><strong>E-mial:</strong> <span class="email_user"></span></p>
+    </div>
+</div>
+
+<!-- Resumen de Empleados -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total de Trabajadores</h5>
+                <p class="card-text"><span id="total_works"></span> trabajadores totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Trabajadores Activos</h5>
+                <p class="card-text"><span id="avtive_works"></span> trabajadores activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Trabajadores Inactivos</h5>
+                <p class="card-text"><span id="inactive_works"></span> trabajadores inactivos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Descripción del Sistema</h3>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Sistema de Gestión de Recursos Humanos</h5>
+                <p class="card-text">
+                    El Sistema de Gestión de Recursos Humanos de la Universidad Nacional de Cajamarca está
+                    diseñado para optimizar la administración del personal de la universidad. Con este sistema,
+                    se pueden gestionar los siguientes aspectos:
+                </p>
+                <ul>
+                    <li><strong>Trabajadores:</strong> Registro y seguimiento de la información del personal
+                        administrativo.</li>
+                    <li><strong>Trabajadores Activos:</strong> son los usuarios o trabajadopres que se
+                        encuiantran activos hasta la fecha.</li>
+                    <li><strong>Trabajadores Inactivos:</strong> Son usuarios o trabajadpores que ya no son
+                        parte de la universidad.</li>
+                </ul>
+                <p class="card-text">
+                    Este sistema permite una gestión más eficiente y transparente de los recursos humanos,
+                    mejorando la organización y facilitando el acceso a la información clave.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    getDatos();
+    fillUserDetails();
+
+    // sol-data-works
+    function getDatos() {
+        const token = localStorage.getItem('token');
+        $.ajax({
+            url: 'http://192.168.18.67/auditoria/works/?count=1',
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            success: function (response) {
+                $('#total_works').text(response.total_count);
+                $('#avtive_works').text(response.active_count);
+                $('#inactive_works').text(response.inactive_count);
+            },
+            error: function (e) {
+                logout();
+            }
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '../../index.html';
+    }
+
+    // set-data-user
+    function fillUserDetails() {
+        var user = getUserData();
+        if (user) {
+            $('.name_user').text(`Bienvenido: ${user.username}`);
+            $('.rol_user').text(user.role);
+            $('.email_user').text(user.email);
+        } else {
+            $('.name_user').text('No disponible');
+            $('.rol_user').text('No disponible');
+            $('.email_user').text('No disponible');
+        }
+    }
+</script>

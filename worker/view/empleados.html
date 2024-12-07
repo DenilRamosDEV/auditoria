@@ -1,0 +1,408 @@
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Trabajadores - UNC</h1>
+
+    <!-- Fila de Botones y Barra de Búsqueda -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <!-- Botón para Agregar Usuario -->
+            <button class="btn btn-success" onclick="addUser()">
+                <i class="fas fa-user-plus"></i> Agregar Usuario
+            </button>
+            <button class="btn btn-primary" onclick="fetchData()">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="container mt-0">
+        <table id="example" class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cargo</th>
+                    <th>Sueldo</th>
+                    <th>Fecha de Contratación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="empleados-tbody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal: Agregar Trabajador -->
+    <div class="modal fade" id="addWorkerModal" tabindex="-1" aria-labelledby="addWorkerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addWorkerModalLabel">Agregar Trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addWorkerForm">
+                        <div class="mb-3">
+                            <label for="addNombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="addNombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addApellido" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="addApellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addCargo" class="form-label">Cargo</label>
+                            <input type="text" class="form-control" id="addCargo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addSueldo" class="form-label">Sueldo</label>
+                            <input type="number" class="form-control" id="addSueldo" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addFechaContratacion" class="form-label">Fecha de Contratación</label>
+                            <input type="date" class="form-control" id="addFechaContratacion" required>
+                        </div>
+                    </form>
+                    <button class="btn btn-success w-100" id="addWorkerButton">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Trabajador -->
+    <div class="modal fade" id="editWorkerModal" tabindex="-1" aria-labelledby="editWorkerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWorkerModalLabel">Editar Trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editWorkerForm">
+                        <div class="mb-3">
+                            <label for="editNombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="editNombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editApellido" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="editApellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCargo" class="form-label">Cargo</label>
+                            <input type="text" class="form-control" id="editCargo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSueldo" class="form-label">Sueldo</label>
+                            <input type="number" class="form-control" id="editSueldo" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editFechaContratacion" class="form-label">Fecha de Contratación</label>
+                            <input type="date" class="form-control" id="editFechaContratacion" required>
+                        </div>
+                    </form>
+                    <button class="btn btn-success w-100" id="editWorkerButton">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmación Archivar Trabajador -->
+    <div class="modal fade" id="archiveWorkerModal" tabindex="-1" aria-labelledby="archiveWorkerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archiveWorkerModalLabel">Confirmar Archivado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas archivar a: <span id="archivNombre"></span>? Esta acción no se puede
+                    deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmArchiveButton">Archivar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal notificación -->
+    <button type="button" class="btn btn-primary" id="liveToastBtn" style="display: none;">Show live toast</button>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <small>Hace un momento</small>
+                <button type="button" class="btn-close btn-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+
+    <script>
+        function showToast(message, type = 'error') {
+            const toastElement = $('#liveToast');
+            const toastBody = $('.toast-body');
+            const toast = new bootstrap.Toast(toastElement[0]);
+            if (type === 'success') {
+                toastElement.removeClass('bg-danger').addClass('bg-success');
+                $('.toast-header strong').text('Operación Exitosa');
+                toastBody.text(message);
+            } else {
+                toastElement.removeClass('bg-success').addClass('bg-danger');
+                $('.toast-header strong').text('Error en la Operación');
+                toastBody.text(message);
+            }
+            toast.show();
+        }
+
+        // set-table
+        function loadWorkers(workers) {
+            const tbody = document.getElementById('empleados-tbody');
+            if ($.fn.dataTable.isDataTable('#example')) {
+                $('#example').DataTable().clear().destroy();
+            }
+            tbody.innerHTML = '';
+            workers.forEach(worker => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${worker.id}</td>
+                    <td>${worker.first_name}</td>
+                    <td>${worker.last_name}</td>
+                    <td>${worker.position}</td>
+                    <td>${worker.salary}</td>
+                    <td>${worker.hire_date}</td>
+                    <td>${worker.status}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editUser(${worker.id})"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="archiveUser(${worker.id})"><i class="fas fa-archive"></i> Archivar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            $('#example').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "pageLength": 5,
+                "destroy": true
+            });
+        }
+
+        // Sol-get-table
+        function fetchData() {
+            const token = localStorage.getItem('token');
+            $.ajax({
+                url: `http://192.168.18.67/auditoria/works/`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    loadWorkers(data);
+                },
+                error: function () {
+                    console.error('Error al cargar los trabajadores');
+                }
+            });
+        }
+
+        // Sol-get-archivar
+        function editarRellenar(id) {
+            const token = localStorage.getItem('token');
+            $.ajax({
+                url: `http://192.168.18.67/auditoria/works/?id=${id}`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    $('#editNombre').val(data.first_name);
+                    $('#editApellido').val(data.last_name);
+                    $('#editCargo').val(data.position);
+                    $('#editSueldo').val(data.salary);
+                    $('#editFechaContratacion').val(data.hire_date);
+                },
+                error: function () {
+                    console.error('Error al cargar los trabajadores');
+                }
+            });
+        }
+
+        // Sol-get-archivar
+        function eliminarRellenar(id) {
+            const token = localStorage.getItem('token');
+            $.ajax({
+                url: `http://192.168.18.67/auditoria/works/?id=${id}`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                success: function (data) {
+                    $('#archivNombre').html('<strong>' + data.first_name + ' ' + data.last_name + '</strong>');
+                },
+                error: function () {
+                    console.error('Error al cargar los trabajadores');
+                }
+            });
+        }
+
+        // Sol-actualizar
+        function updateWorker(id) {
+            const token = localStorage.getItem('token');
+            const updatedData = {
+                id: id,
+                first_name: $('#editNombre').val(),
+                last_name: $('#editApellido').val(),
+                position: $('#editCargo').val(),
+                salary: $('#editSueldo').val(),
+                hire_date: $('#editFechaContratacion').val(),
+                status: "active"
+            };
+            $.ajax({
+                url: `http://192.168.18.67/auditoria/works/`,
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(updatedData),
+                success: function (data) {
+                    showToast('Trabajador actualizado exitosamente.', 'success');
+                    fetchData();
+                },
+                error: function () {
+                    console.error('Error al actualizar los trabajadores');
+                    showToast('Hubo un error al actualizar trabajador.', 'error');
+                }
+            });
+        }
+
+        // Sol-archivar
+        function archiveWorker(id) {
+            const token = localStorage.getItem('token');
+            const updatedData = {
+                id: id
+            };
+            $.ajax({
+                url: `http://192.168.18.67/auditoria/works/`,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(updatedData),
+                success: function (data) {
+                    showToast('Trabajador archivado exitosamente.', 'success');
+                    fetchData();
+                },
+                error: function () {
+                    console.error('Error al archivar trabajador');
+                    showToast('Hubo un error al archivar trabajador.', 'error');
+                }
+            });
+        }
+
+        // Abrir modal agregar
+        var modalAdd = new bootstrap.Modal(document.getElementById('addWorkerModal'));
+        function addUser() {
+            modalAdd.show();
+        }
+        document.getElementById('addWorkerModal').addEventListener('hidden.bs.modal', function () {
+            const modalContent = document.querySelector('#addWorkerModal .modal-content');
+            modalContent.setAttribute('inert', '');
+        });
+        document.getElementById('addWorkerModal').addEventListener('show.bs.modal', function () {
+            const modalContent = document.querySelector('#addWorkerModal .modal-content');
+            modalContent.removeAttribute('inert');
+        });
+
+        // Abrir modal editar
+        var modalEdit = new bootstrap.Modal(document.getElementById('editWorkerModal'));
+        function editUser(id) {
+            sessionStorage.setItem('id_user', id);
+            modalEdit.show();
+            editarRellenar(id);
+        }
+        document.getElementById('editWorkerModal').addEventListener('hidden.bs.modal', function () {
+            const modalContent = document.querySelector('#editWorkerModal .modal-content');
+            modalContent.setAttribute('inert', '');
+        });
+        document.getElementById('editWorkerModal').addEventListener('show.bs.modal', function () {
+            const modalContent = document.querySelector('#editWorkerModal .modal-content');
+            modalContent.removeAttribute('inert');
+        });
+
+        // Abrir modal archivar
+        var modalDelet = new bootstrap.Modal(document.getElementById('archiveWorkerModal'));
+        function archiveUser(id) {
+            sessionStorage.setItem('id_user', id);
+            modalDelet.show();
+            eliminarRellenar(id);
+        }
+        document.getElementById('archiveWorkerModal').addEventListener('hidden.bs.modal', function () {
+            const modalContent = document.querySelector('#archiveWorkerModal .modal-content');
+            modalContent.setAttribute('inert', '');
+        });
+        document.getElementById('archiveWorkerModal').addEventListener('show.bs.modal', function () {
+            const modalContent = document.querySelector('#archiveWorkerModal .modal-content');
+            modalContent.removeAttribute('inert');
+        });
+
+        // Editar trabajador
+        $('#editWorkerButton').on('click', function (event) {
+            event.preventDefault();
+            updateWorker(sessionStorage.getItem('id_user'));
+            $('#editWorkerModal').modal('hide');
+        });
+        $('#confirmArchiveButton').on('click', function (event) {
+            event.preventDefault();
+            archiveWorker(sessionStorage.getItem('id_user'));
+            $('#archiveWorkerModal').modal('hide');
+        });
+
+        // Agregar nuevo trabajador
+        $('#addWorkerButton').on('click', function (event) {
+            event.preventDefault();
+            var trabajador = {
+                first_name: $('#addNombre').val(),
+                last_name: $('#addApellido').val(),
+                position: $('#addCargo').val(),
+                salary: $('#addSueldo').val(),
+                hire_date: $('#addFechaContratacion').val()
+            };
+            var token = localStorage.getItem('token');
+            $.ajax({
+                url: 'http://192.168.18.67/auditoria/works/',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(trabajador),
+                success: function (response) {
+                    showToast('Trabajador creado exitosamente.', 'success');
+                    $('#addWorkerModal').modal('hide');
+                    fetchData();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al agregar trabajador:', error);
+                    showToast('Hubo un error al crear trabajador.', 'error');
+                }
+            });
+        });
+        fetchData();
+    </script>
+</div>

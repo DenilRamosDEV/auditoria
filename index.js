@@ -39,61 +39,49 @@
     });
 
     // Función para hacer la llamada a la API y manejar la respuesta
-    // Función para hacer la llamada a la API y manejar la respuesta
     function apiLogin(event) {
-        event.preventDefault(); // Evita el envío real del formulario
-        loginButton.disabled = true; // Desactiva el botón temporalmente
+        event.preventDefault();
+        loginButton.disabled = true;
         loginButton.textContent = 'Verificando...';
 
         const userData = {
-            username: usernameInput.value.trim(), // Enviar el nombre de usuario
-            password: passwordInput.value.trim()   // Enviar la contraseña
+            username: usernameInput.value.trim(),
+            password: passwordInput.value.trim()
         };
 
         // Realizar la llamada a la API
-        fetch('http://192.168.1.8/auditoria/auth/', {
-            method: 'POST', // Usamos POST para enviar datos
+        fetch('http://192.168.18.67/auditoria/auth/', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(userData),
+            credentials: 'same-origin'
         })
-            .then(response => response.json()) // Convertir la respuesta a JSON
+            .then(response => response.json())
             .then(data => {
-                console.log(data);
-
                 if (data.status === 'success') {
-                    // Si la API devuelve que el login fue exitoso
-                    // Almacenar el token y los datos del usuario en localStorage
-                    localStorage.setItem('token', data.token); // Guardar el token
-                    localStorage.setItem('user', JSON.stringify(data.user)); // Guardar los datos del usuario (como un objeto JSON)
-
-                    // Redirigir al usuario a la página de recursos humanos
-                    window.location.href = 'prueba.html';
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = './worker/view/worker.html';
                 } else {
-                    // Si la API devuelve un error, mostrar mensaje de error
                     showErrorToast(data.message);
-                    loginButton.disabled = false; // Reactivar el botón
+                    loginButton.disabled = false;
                     loginButton.textContent = 'Iniciar sesión';
                 }
             })
             .catch(error => {
-                // Manejo de errores de red o problemas con la API
                 showErrorToast('Hubo un problema con la conexión. Intenta nuevamente.');
-                loginButton.disabled = false; // Reactivar el botón
+                loginButton.disabled = false;
                 loginButton.textContent = 'Iniciar sesión';
-                console.error('Error de red o con la API:', error);
             });
     }
-
 
     // Función para mostrar el toast de error
     function showErrorToast(message) {
         const toastBody = errorMessage.querySelector('.toast-body');
-        toastBody.textContent = message; // Establece el mensaje de error
-        toast.show(); // Muestra el toast
+        toastBody.textContent = message;
+        toast.show();
     }
-
-    // Validación y simulación en el evento submit
     form.addEventListener('submit', apiLogin);
 })();
